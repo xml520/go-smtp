@@ -33,10 +33,7 @@ func TestClientAuthTrimSpace(t *testing.T) {
 		strings.NewReader(server),
 		&wrote,
 	}
-	c, err := NewClient(fake, "fake.host")
-	if err != nil {
-		t.Fatalf("NewClient: %v", err)
-	}
+	c := NewClient(fake, "fake.host")
 	c.tls = true
 	c.didHello = true
 	c.Auth(toServerEmptyAuth{})
@@ -185,12 +182,9 @@ func TestBasic_SMTPError(t *testing.T) {
 		strings.NewReader(faultyServer),
 		&wrote,
 	}
-	c, err := NewClient(fake, "fake.host")
-	if err != nil {
-		t.Fatalf("NewClient failed: %v", err)
-	}
+	c := NewClient(fake, "fake.host")
 
-	err = c.Mail("whatever", nil)
+	err := c.Mail("whatever", nil)
 	if err == nil {
 		t.Fatal("MAIL succeded")
 	}
@@ -267,12 +261,9 @@ func TestClient_TooLongLine(t *testing.T) {
 		pr,
 		&wrote,
 	}
-	c, err := NewClient(fake, "fake.host")
-	if err != nil {
-		t.Fatalf("NewClient failed: %v", err)
-	}
+	c := NewClient(fake, "fake.host")
 
-	err = c.Mail("whatever", nil)
+	err := c.Mail("whatever", nil)
 	if err != ErrTooLongLine {
 		t.Fatal("MAIL succeded or returned a different error:", err)
 	}
@@ -335,10 +326,7 @@ func TestNewClient(t *testing.T) {
 	}
 	var fake faker
 	fake.ReadWriter = bufio.NewReadWriter(bufio.NewReader(strings.NewReader(server)), bcmdbuf)
-	c, err := NewClient(fake, "fake.host")
-	if err != nil {
-		t.Fatalf("NewClient: %v\n(after %v)", err, out())
-	}
+	c := NewClient(fake, "fake.host")
 	defer c.Close()
 	if ok, args := c.Extension("aUtH"); !ok || args != "LOGIN PLAIN" {
 		t.Fatalf("Expected AUTH supported")
@@ -376,10 +364,7 @@ func TestNewClient2(t *testing.T) {
 	bcmdbuf := bufio.NewWriter(&cmdbuf)
 	var fake faker
 	fake.ReadWriter = bufio.NewReadWriter(bufio.NewReader(strings.NewReader(server)), bcmdbuf)
-	c, err := NewClient(fake, "fake.host")
-	if err != nil {
-		t.Fatalf("NewClient: %v", err)
-	}
+	c := NewClient(fake, "fake.host")
 	defer c.Close()
 	if ok, _ := c.Extension("DSN"); ok {
 		t.Fatalf("Shouldn't support DSN")
@@ -422,14 +407,11 @@ func TestHello(t *testing.T) {
 		bcmdbuf := bufio.NewWriter(&cmdbuf)
 		var fake faker
 		fake.ReadWriter = bufio.NewReadWriter(bufio.NewReader(strings.NewReader(server)), bcmdbuf)
-		c, err := NewClient(fake, "fake.host")
-		if err != nil {
-			t.Fatalf("NewClient: %v", err)
-		}
+		c := NewClient(fake, "fake.host")
 		defer c.Close()
 		c.localName = "customhost"
-		err = nil
 
+		var err error
 		switch i {
 		case 0:
 			err = c.Hello("hostinjection>\n\rDATA\r\nInjected message body\r\n.\r\nQUIT\r\n")
@@ -552,15 +534,12 @@ func TestAuthFailed(t *testing.T) {
 	bcmdbuf := bufio.NewWriter(&cmdbuf)
 	var fake faker
 	fake.ReadWriter = bufio.NewReadWriter(bufio.NewReader(strings.NewReader(server)), bcmdbuf)
-	c, err := NewClient(fake, "fake.host")
-	if err != nil {
-		t.Fatalf("NewClient: %v", err)
-	}
+	c := NewClient(fake, "fake.host")
 	defer c.Close()
 
 	c.tls = true
 	c.serverName = "smtp.google.com"
-	err = c.Auth(sasl.NewPlainClient("", "user", "pass"))
+	err := c.Auth(sasl.NewPlainClient("", "user", "pass"))
 
 	if err == nil {
 		t.Error("Auth: expected error; got none")
@@ -828,7 +807,8 @@ Goodbye.`
 	}
 }
 
-var lmtpServer = `250-localhost at your service
+var lmtpServer = `220 localhost Simple Mail Transfer Service Ready
+250-localhost at your service
 250-SIZE 35651584
 250 8BITMIME
 250 Sender OK
@@ -854,7 +834,8 @@ QUIT
 `
 
 func TestLMTPData(t *testing.T) {
-	var lmtpServerPartial = `250-localhost at your service
+	var lmtpServerPartial = `220 localhost Simple Mail Transfer Service Ready
+250-localhost at your service
 250-SIZE 35651584
 250 8BITMIME
 250 Sender OK
