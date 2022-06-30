@@ -10,8 +10,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/emersion/go-smtp"
-	"github.com/emersion/go-smtp/backendutil"
+	"github.com/xml520/go-smtp"
+	"github.com/xml520/go-smtp/backendutil"
 )
 
 var _ smtp.Backend = &backendutil.TransformBackend{}
